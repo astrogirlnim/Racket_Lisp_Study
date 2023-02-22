@@ -1,0 +1,95 @@
+; (do-skipzero config)
+; takes a TC-201 configuration config and returns
+; a TC-201 configuration in which the program counter (pc)
+; is increased by 2 if the accumulator contains +0 or -0,
+; and is increased by 1 otherwise.  All registers other than
+; the pc are unaffected.
+
+; (do-skippos config)
+; takes a TC-201 configuration config and returns
+; a TC-201 configuration in which the program counter (pc)
+; is increased by 2 if the accumulator contains a nonzero
+; positive number, and is increased by 1 otherwise.  
+; All registers other than the pc are unaffected.
+
+; (do-skiperr config)
+; takes a TC-201 configuration config and returns
+; a TC-201 configuration in which the program counter (pc)
+; is increased by 2 if the arithmetic error bit contains 1
+; and is increased by 1 if the arithmetic error bit contains 0.
+; In either case, in the new configuration, the arithmetic
+; error bit is set to 0.
+; All registers other than the pc and the aeb are unaffected.
+
+; (do-loadi address config)
+; takes a memory address and a TC-201 configuration and returns a TC-201 
+; configuration that reflects the result of doing a "load indirect" from the
+; given memory address to the accumulator.
+; That is, the low-order 12 bits of the contents of the memory register 
+; addressed by address are extracted and used as the memory address
+; from which the contents are loaded into the accumulator.
+; All other registers are unaffected.
+
+; (do-storei address config)
+; takes a memory address and a TC-201 configuration and returns a TC-201 
+; configuration that reflects the result of doing a "store indirect" to the
+; given memory address from the accumulator.
+; That is, the low-order 12 bits of the contents of the memory register 
+; addressed by address are extracted and used as the memory address
+; to which the contents of the accumulator are copied.
+; All other registers are unaffected.
+
+; (do-shift address config)
+; takes a memory address and a TC-201 configuration and returns a TC-201 
+; configuration that reflects the result of doing a shift of accumulator
+; left or right by the number of bits given in the specified memory address.
+; A positive number shifts the accumulator to the left.
+; A negative number shifts the accumulator to the right.
+
+(init-config lst)
+; takes a list lst of 16 bit patterns, and returns a TC-201 configuration 
+; in which those patterns are loaded into RAM starting with address 0, 
+; and the CPU registers are initialized so that the accumulator has
+; value +0, the program counter has address 0, the run flag has 
+; value 1, and the arithmetic error bit has value 0.
+
+; (symbol-table prog)
+; takes a TC-201 assembly language program prog (in the format specified below) 
+; and returns a table of entries in which the key is a symbol that is a label 
+; in prog and the value is the corresponding memory address for that
+; instruction or data value (when the program is loaded into memory starting 
+; at address 0.)  
+
+; The addresses in the table should be in increasing order.
+
+; (assemble prog)
+; translates a TC-201 assembly language program prog 
+; into a list of 16-bit patterns to be loaded into the TC-201 memory.
+
+; The symbolic opcodes are: halt, load, store, add, sub, input, output
+; jump, skipzero, skippos, skiperr, loadi, storei, shift, and, xor.
+
+; There is also a data statement.
+
+; An assembly language program is a list of "lines", where
+; each line is a list of two or three elements representing
+; an instruction or a data statement.  If the line has
+; three elements, the first one is a symbolic label that
+; should appear in the symbol table for the program.
+; The remaining two elements (or the only two elements,
+; if the line has just two elements) are either a symbol
+; representing an opcode and an address, or the symbol 'data
+; and a data value.  The address field of an instruction may
+; be a number in the range 0 to 4095 inclusive, or a symbolic
+; label, in which case the address is the numeric value of the
+; label in the symbol table.  The value field of a data statement
+; may be a number in the range -32767 to 32767 inclusive, or
+; a symbolic label, in which case the value used is the numeric
+; value of the label in the symbol table.
+
+; You may assume that numeric addresses and data values will
+; be in the correct ranges.
+
+; Note that even instructions like halt, input, and skipzero, which
+; ignore their address fields, must have an address specified.
+; (A typical choice is 0 for the address fields of such instructions.)
